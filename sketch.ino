@@ -1,30 +1,16 @@
-byte red_led = 27;
-int heartRate = 80;
+byte blue_led = 14;
 
 void setup() {
   Serial.begin(9600);
-  pinMode(27, OUTPUT);
+  pinMode(14, OUTPUT);
 }
 
 void loop() {
-  if (Serial.available() > 0) {
-    heartRate = Serial.parseInt();
+  int robotSpeeds[] = {50, 120, 200, 255};
+  for(int i=0; i<4; i++) {
+    analogWrite(14, robotSpeeds[i]);
+    delay(1000);
   }
-
-    if(heartRate > 160 || heartRate < 50) {
-      for(int a = 0; a < 255; a++) {
-        analogWrite(27, a);
-        delay(15);
-      }
-      for(int a = 255; a > 0; a--) {
-        analogWrite(27, a);
-        delay(15);
-      }
-    }
-    else if(heartRate < 160 || heartRate > 50) {
-        digitalWrite(27, HIGH);
-        delay(100);
-        digitalWrite(27, LOW);
-        delay(900);
-  }
+  analogWrite(14, 0);
+  delay(5000);
 }
