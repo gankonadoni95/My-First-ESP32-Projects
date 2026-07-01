@@ -1,34 +1,22 @@
-byte blue_led = 27;
-byte red_led = 14;
-int heartRate;
+byte red_led = 27;
 
 void setup() {
   Serial.begin(9600);
-  pinMode(blue_led, OUTPUT);
-  pinMode(red_led, OUTPUT);
+  pinMode(27, OUTPUT);
 }
 
-void loop() {
-  if (Serial.available() > 0) {
-    heartRate = Serial.parseInt();
-    
-    for(int i = 0; i < 10; i++) {
-
-      if (heartRate < 40 || heartRate > 161) {
-        digitalWrite(blue_led, LOW);
-        digitalWrite(red_led, HIGH);
-        delay(250);
-        digitalWrite(red_led, LOW);
-        delay(250);
-      }
-      else if (heartRate >= 41 || heartRate <= 160) {
-        digitalWrite(red_led, LOW);
-        digitalWrite(blue_led, HIGH);
-        delay(100);
-        digitalWrite(blue_led, LOW);
-        delay(100);
-      }
+void loop () {
+  float dropSpeeds[] = {0.5, 1.2, 0.8, 4.6, 5.2};
+  for(int t = 0; t < 5; t++) {
+    if(dropSpeeds[t] > 4.0) {
+      digitalWrite(27, HIGH);
+      delay(2000);
+      break;
     }
-    delay(3500);
+    else if(dropSpeeds[t] < 4.0) {
+      digitalWrite(27, LOW);
+    }
   }
+  digitalWrite(27, LOW);
+  delay(5000);
 }
