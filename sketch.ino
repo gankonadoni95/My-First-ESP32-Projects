@@ -1,22 +1,20 @@
-byte red_led = 27;
+byte blue_led = 14;
+int a;
 
 void setup() {
   Serial.begin(9600);
-  pinMode(27, OUTPUT);
+  pinMode(14, OUTPUT);
 }
 
-void loop () {
-  float dropSpeeds[] = {0.5, 1.2, 0.8, 4.6, 5.2};
-  for(int t = 0; t < 5; t++) {
-    if(dropSpeeds[t] > 4.0) {
-      digitalWrite(27, HIGH);
-      delay(2000);
-      break;
-    }
-    else if(dropSpeeds[t] < 4.0) {
-      digitalWrite(27, LOW);
-    }
+void loop() {
+  for(int a=0;a<255;a++) {
+    analogWrite(14, a);
+    delay(5);
   }
-  digitalWrite(27, LOW);
-  delay(5000);
+  for(int a=255;a>0;a--) {
+    analogWrite(14, a);
+    delay(5);
+  }
+  analogWrite(14, 0);
+  delay(2500);
 }
