@@ -1,20 +1,19 @@
-byte blue_led = 14;
-int a;
+#include <ESP32Servo.h>
+
+Servo myServo;
+int heartRate = 190;
 
 void setup() {
   Serial.begin(9600);
-  pinMode(14, OUTPUT);
+  myServo.attach(18);
 }
 
 void loop() {
-  for(int a=0;a<255;a++) {
-    analogWrite(14, a);
-    delay(5);
+  if(heartRate > 160) {
+    myServo.write(90);
+    delay(500);
   }
-  for(int a=255;a>0;a--) {
-    analogWrite(14, a);
-    delay(5);
+  else (heartRate <= 160); {
+    myServo.write(0);
   }
-  analogWrite(14, 0);
-  delay(2500);
 }
