@@ -12,8 +12,10 @@ void loop() {
   if(heartRate > 160) {
     myServo.write(90);
     delay(500);
+    myServo.write(0);
+    delay(500);
   }
-  else (heartRate <= 160); {
+  else {
     myServo.write(0);
   }
 }
