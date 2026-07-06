@@ -1,59 +1,36 @@
-#include <ESP32Servo.h>
-
-Servo leftServo;
-Servo rightServo;
-byte green_led = 27;
-byte red_led = 14;
-int heartRate = 95;
-int a;
+byte blue_led = 14;
+byte red_led = 27;
+float targetDistance = 150.5;
+bool isTargetHostile = true;
 
 void setup() {
   Serial.begin(9600);
-  leftServo.attach(19);
-  rightServo.attach(18);
-  pinMode(27, OUTPUT);
-  pinMode(14, OUTPUT);
+  pinMode(blue_led, OUTPUT);
+  pinMode(red_led, OUTPUT);
 }
 
 void loop() {
-  if(Serial.available() > 0) {
-    heartRate = Serial.parseInt(); 
-    }
-    if(heartRate > 160 || heartRate < 55) {
-      digitalWrite(27, LOW);
-      digitalWrite(14, HIGH);
-      delay(100);
-      digitalWrite(14, LOW);
-      delay(100);
-      digitalWrite(14, HIGH);
-      delay(100);
-      digitalWrite(14, LOW);
-      delay(100);
-      digitalWrite(14, HIGH);
-      delay(100);
-      digitalWrite(14, LOW);
-      delay(550); 
-      leftServo.write(90);
-      rightServo.write(90);
-      delay(500);
-      leftServo.write(0);
-      rightServo.write(0);
-      delay(1000);
-    }
-    else {
-      digitalWrite(14, LOW);
-      leftServo.write(0);
-      rightServo.write(0);
+  if (Serial.available() >0 ) {
+    targetDistance = Serial.parseFloat();
+    isTargetHostile = Serial.parseInt();
 
-      for (int a = 0; a < 255; a++) {
-        analogWrite(27, a);
-        delay(5);
-      }
-      for(int a = 255; a > 0; a--) {
-        analogWrite(27, a);
-        delay(5);
-      }
-      analogWrite(27, 0);
-      delay(500);
+  if (isTargetHostile == true && targetDistance <= 150.5 ) {
+    digitalWrite(blue_led, HIGH);
+    digitalWrite(red_led, HIGH);
+    delay(1000);
+    digitalWrite(red_led, LOW);
+    delay(1000);
   }
+  else if (isTargetHostile == true && targetDistance > 150.5 && targetDistance < 250.5) {
+    digitalWrite(blue_led, LOW);
+    digitalWrite(red_led, HIGH);
+    delay(500);
+    digitalWrite(red_led, LOW);
+    delay(500);
+  }
+  else if (isTargetHostile == false && targetDistance >= 0 && targetDistance <= 250.5) {
+    digitalWrite(blue_led, LOW);
+    digitalWrite(red_led, LOW);
+  }
+ }
 }
