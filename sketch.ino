@@ -1,6 +1,6 @@
 byte blue_led = 14;
 byte red_led = 27;
-float targetDistance = 300.0;
+float targetDistance = 300.5;
 bool isTargetHostile = true;
 
 void setup() {
