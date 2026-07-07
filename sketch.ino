@@ -1,6 +1,6 @@
 byte blue_led = 14;
 byte red_led = 27;
-float targetDistance = 150.5;
+float targetDistance = 300.0;
 bool isTargetHostile = true;
 
 void setup() {
@@ -10,27 +10,32 @@ void setup() {
 }
 
 void loop() {
-  if (Serial.available() >0 ) {
+  if (Serial.available() > 0 ) {
     targetDistance = Serial.parseFloat();
-    isTargetHostile = Serial.parseInt();
+
+    if(targetDistance <= 250.5) {
+      isTargetHostile = true;
+    } else {
+      isTargetHostile = false;
+  }
+}
 
   if (isTargetHostile == true && targetDistance <= 150.5 ) {
     digitalWrite(blue_led, HIGH);
     digitalWrite(red_led, HIGH);
-    delay(1000);
+    delay(200);
     digitalWrite(red_led, LOW);
-    delay(1000);
+    delay(200);
   }
-  else if (isTargetHostile == true && targetDistance > 150.5 && targetDistance < 250.5) {
+  else if (isTargetHostile == true && targetDistance > 150.5 && targetDistance <= 250.5) {
     digitalWrite(blue_led, LOW);
     digitalWrite(red_led, HIGH);
-    delay(500);
+    delay(400);
     digitalWrite(red_led, LOW);
-    delay(500);
+    delay(400);
   }
-  else if (isTargetHostile == false && targetDistance >= 0 && targetDistance <= 250.5) {
+  else {
     digitalWrite(blue_led, LOW);
     digitalWrite(red_led, LOW);
   }
- }
 }
