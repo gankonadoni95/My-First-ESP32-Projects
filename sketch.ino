@@ -1,38 +1,19 @@
-#include <ESP32Servo.h>
-
-Servo leftServo;
-Servo rightServo;
-int heartRate = 95;
-int systemMode = 0;
-byte pushButton = 4;
-unsigned long previousMillis = 0;
-const long interval = 1000;
+byte blue_led = 14;
+int speed;
 
 void setup() {
   Serial.begin(9600);
-  leftServo.attach(18);
-  rightServo.attach(19);
-  pinMode(4, INPUT_PULLUP);
+  pinMode(blue_led, OUTPUT);
 }
 
 void loop() {
-  if(digitalRead(4) == LOW) {
-    systemMode = 1;
+  for(int speed = 0; speed < 255; speed++) {
+    analogWrite(blue_led, speed);
+    delay(10);
   }
-
-  if(Serial.available() > 0) {
-    heartRate = Serial.parseInt();
+  for(int speed = 255; speed >= 0; speed--) {
+    analogWrite(blue_led, speed);
+    delay(10);
   }
-  unsigned long currentMillis = millis();
-  if(currentMillis - previousMillis >= interval) {
-    previousMillis = currentMillis;
-
-    if(systemMode == 1 && (heartRate > 160 || heartRate < 55)) {
-      leftServo.write(90);
-      rightServo.write(90);
-    } else {
-      leftServo.write(0);
-      rightServo.write(0);
-    }
-  }
+  delay(5500);
 }
