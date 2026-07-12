@@ -1,19 +1,53 @@
-byte blue_led = 14;
-int speed;
+#include <ESP32Servo.h>
+
+Servo rightServo;
+Servo leftServo;
+byte red_led = 27;
+int heartRate = 85;
+unsigned long previousMillis = 0;
+unsigned long accidentTimer = 0;
+const long firstInterval = 1000;
+int systemStatus = 0;
+bool accidentClockStarted = false;
 
 void setup() {
   Serial.begin(9600);
-  pinMode(blue_led, OUTPUT);
+  rightServo.attach(19);
+  leftServo.attach(18);
+  pinMode(27, OUTPUT);
 }
 
 void loop() {
-  for(int speed = 0; speed < 255; speed++) {
-    analogWrite(blue_led, speed);
-    delay(10);
+  if(Serial.available() > 0) {
+    heartRate = Serial.parseInt();
   }
-  for(int speed = 255; speed >= 0; speed--) {
-    analogWrite(blue_led, speed);
-    delay(10);
+
+  if(heartRate > 160 || heartRate < 55) {
+    systemStatus = 1;
+    
+    if(accidentClockStarted == false) {
+      accidentTimer = millis();
+      accidentClockStarted = true;
+    } 
+  } else {
+    systemStatus = 0;
+    accidentClockStarted = false;
+    digitalWrite(27, LOW);
   }
-  delay(5500);
+
+  unsigned long currentMillis = millis();
+  if(currentMillis - previousMillis >= firstInterval) {
+    previousMillis = currentMillis;
+
+    if(systemStatus == 1) {
+      rightServo.write(90);
+      leftServo.write(90);
+    } else {
+      rightServo.write(0);
+      leftServo.write(0); 
+    }
+  }
+  if(systemStatus == 1 && (currentMillis - accidentTimer >= 3000)) {
+    digitalWrite(27, HIGH);
+  }
 }
