@@ -6,7 +6,7 @@ byte red_led = 27;
 int heartRate = 85;
 unsigned long previousMillis = 0;
 unsigned long accidentTimer = 0;
-const long firstInterval = 1000;
+const long firstInterval = 1500;
 int systemStatus = 0;
 bool accidentClockStarted = false;
 
