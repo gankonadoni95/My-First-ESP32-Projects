@@ -2,7 +2,7 @@
 
 Servo leftServo;
 Servo rightServo;
-int systemStatus = 0;
+byte systemStatus = 0;
 unsigned long previousMillis = 0;
 unsigned long accidentTimer = 0;
 const long interval= 1500;
