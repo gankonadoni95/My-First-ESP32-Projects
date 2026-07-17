@@ -6,6 +6,7 @@ Servo rightServo;
 byte systemStatus = 0;
 byte pushButton = 4;
 byte red_led = 27;
+byte blue_led = 14;
 unsigned long previousMillis = 0;
 unsigned long accidentTimer = 0;
 const long Interval= 1000;
@@ -16,6 +17,7 @@ void setup() {
   leftServo.attach(18);
   rightServo.attach(19);
   pinMode(27, OUTPUT);
+  pinMode(14, OUTPUT);
   pinMode(4, INPUT_PULLUP);
 }
 
@@ -31,6 +33,7 @@ void loop() {
     systemStatus = 0;
     accidentClockStarted = false;
     digitalWrite(27, LOW);
+    digitalWrite(14, HIGH);
   }
 
   unsigned long currentMillis = millis();
