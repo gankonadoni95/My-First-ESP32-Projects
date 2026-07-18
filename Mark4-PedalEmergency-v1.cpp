@@ -4,7 +4,7 @@ Servo leftServo;
 Servo rightServo;
 
 byte systemStatus = 0;
-byte pushButton = 4;
+const byte pushButton = 4;
 byte red_led = 27;
 byte blue_led = 14;
 unsigned long previousMillis = 0;
