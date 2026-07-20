@@ -9,7 +9,7 @@ byte red_led = 27;
 byte blue_led = 14;
 unsigned long previousMillis = 0;
 unsigned long accidentTimer = 0;
-const long Interval= 1000;
+const long Interval= 1500;
 bool accidentClockStarted = false;
 
 void setup() {
@@ -49,7 +49,7 @@ void loop() {
     digitalWrite(27, LOW);
   }
 }
-  if(systemStatus == 1 && (currentMillis - accidentTimer >= 3000)) {
+  if(systemStatus == 1 && (currentMillis - accidentTimer >= 2500)) {
       digitalWrite(27, HIGH);
  }
 }
