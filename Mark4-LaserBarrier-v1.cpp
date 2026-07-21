@@ -49,8 +49,8 @@ void loop() {
       rightServo.write(0);
     }
   }
-  if(systemStatus == 1 && (currentMillis - accidentTimer >= 3000)) {
-    tone(25, 1000);
+  if(systemStatus == 1 && (currentMillis - accidentTimer >= 3500)) {
+    tone(25, 1500);
     digitalWrite(27, HIGH);
   }
 }
