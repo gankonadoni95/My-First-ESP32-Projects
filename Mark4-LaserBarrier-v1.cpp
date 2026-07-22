@@ -8,6 +8,7 @@ unsigned long accidentTimer = 0;
 const long interval= 1100;
 bool accidentClockStarted = false;
 byte red_led = 27;
+byte blue_led = 14;
 const int buzzer = 25;
 int IdrValue = 0;
 int threshold = 1000;
@@ -17,6 +18,7 @@ void setup() {
   leftServo.attach(19);
   rightServo.attach(18);
   pinMode(27, OUTPUT);
+  pinMode(14, OUTPUT);
   pinMode(34, INPUT);
   pinMode(25, OUTPUT);
 }
@@ -35,6 +37,7 @@ void loop() {
     systemStatus = 0;
     accidentClockStarted = false;
     digitalWrite(27, LOW);
+    digitalWrite(14, HIGH);
     noTone(25);
 }
 
