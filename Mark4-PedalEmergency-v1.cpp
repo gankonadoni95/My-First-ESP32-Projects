@@ -51,5 +51,8 @@ void loop() {
 }
   if(systemStatus == 1 && (currentMillis - accidentTimer >= 2500)) {
       digitalWrite(27, HIGH);
+    delay(500);
+    digitalWrite(27, LOW);
+    delay(500);
  }
 }
