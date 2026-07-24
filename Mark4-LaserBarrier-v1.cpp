@@ -5,13 +5,13 @@ Servo rightServo;
 byte systemStatus = 0;
 unsigned long previousMillis = 0;
 unsigned long accidentTimer = 0;
-const long interval= 1100;
+const long interval= 1500;
 bool accidentClockStarted = false;
 byte red_led = 27;
 byte blue_led = 14;
 const int buzzer = 25;
 int IdrValue = 0;
-int threshold = 1000;
+int threshold = 955;
 
 void setup() {
   Serial.begin(9600);
