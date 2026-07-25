@@ -45,15 +45,18 @@ void loop() {
   if(currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;
     if(systemStatus == 1) {
-      leftServo.write(90);
-      rightServo.write(90);
+      leftServo.write(180);
+      rightServo.write(180);
     } else {
       leftServo.write(0);
       rightServo.write(0);
     }
   }
-  if(systemStatus == 1 && (currentMillis - accidentTimer >= 3500)) {
-    tone(25, 1500);
+  if(systemStatus == 1 && (currentMillis - accidentTimer >= 2555)) {
+    tone(25, 2000);
     digitalWrite(27, HIGH);
+    delay(500);
+    digitalWrite(27, LOW);
+    delay(500);
   }
 }
