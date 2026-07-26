@@ -9,7 +9,7 @@ byte red_led = 27;
 byte blue_led = 14;
 unsigned long previousMillis = 0;
 unsigned long accidentTimer = 0;
-const long Interval= 1500;
+const long Interval= 1200;
 bool accidentClockStarted = false;
 
 void setup() {
@@ -41,8 +41,8 @@ void loop() {
     previousMillis = currentMillis;
 
     if(systemStatus == 1) {
-    leftServo.write(90);
-    rightServo.write(90);
+    leftServo.write(180);
+    rightServo.write(180);
   } else {
     leftServo.write(0);
     rightServo.write(0);
