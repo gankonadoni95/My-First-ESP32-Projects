@@ -48,15 +48,15 @@ void loop() {
       leftServo.write(180);
       rightServo.write(180);
     } else {
-      leftServo.write(0);
-      rightServo.write(0);
+      leftServo.write(90);
+      rightServo.write(90);
     }
   }
   if(systemStatus == 1 && (currentMillis - accidentTimer >= 2555)) {
     tone(25, 2000);
     digitalWrite(27, HIGH);
-    delay(500);
+    delay(1000);
     digitalWrite(27, LOW);
-    delay(500);
+    delay(1000);
   }
 }
