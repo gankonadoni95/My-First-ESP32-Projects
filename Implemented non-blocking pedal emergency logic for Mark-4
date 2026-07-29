@@ -9,7 +9,7 @@ byte pushButton = 5;
 byte red_led = 27;
 unsigned long previousMillis = 0;
 unsigned long accidentTimer = 0;
-const long Interval= 1000;
+const long Interval= 1500;
 bool accidentClockStarted = false;
 
 void setup() {
@@ -54,7 +54,7 @@ void loop() {
   accidentClockStarted = false;
   digitalWrite(27, LOW);
   systemStatus = 0;
-  leftServo.write(90);
-  rightServo.write(90);
+  leftServo.write(180);
+  rightServo.write(180);
  }
 }
