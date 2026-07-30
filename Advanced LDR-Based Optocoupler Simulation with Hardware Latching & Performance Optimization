@@ -1,0 +1,51 @@
+#include <ESP32Servo.h>
+
+Servo lS;
+Servo rS;
+
+byte systSt = 0;
+byte lb_led = 27;
+int photoR = 34;
+unsigned long prevMill = 0;
+unsigned long accTime = 0;
+const long interval = 1000;
+bool accClockS = false;
+
+void setup() {
+  Serial.begin(115200);
+  lS.attach(18);
+  rS.attach(19);
+  pinMode(27, OUTPUT);
+  pinMode(34, INPUT);
+  lS.write(0);
+  rS.write(0);
+}
+
+void loop() {
+  unsigned long currMill = millis();
+  int sensorValue = analogRead(photoR);
+
+  if(sensorValue < 1000) {
+
+    if(accClockS == false) {
+      accTime = currMill;
+      accClockS = true;
+      lS.write(90);
+      rS.write(90);
+      Serial.println("BARREL IS DROPPED");
+    } 
+  } else {
+    if (accClockS == true) {
+      lS.write(0);
+      rS.write(0);
+      Serial.println("System Reset. Safe mode");
+      }
+    accClockS = false;
+    digitalWrite(27, LOW);
+  }
+
+  if(accClockS == true && (currMill - accTime >= 3500)) {
+    digitalWrite(27, HIGH);
+  }
+  delay(10);
+}
