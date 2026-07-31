@@ -8,7 +8,7 @@ byte lb_led = 27;
 int photoR = 34;
 unsigned long prevMill = 0;
 unsigned long accTime = 0;
-const long interval = 1000;
+const long interval = 1500;
 bool accClockS = false;
 
 void setup() {
@@ -44,7 +44,7 @@ void loop() {
     digitalWrite(27, LOW);
   }
 
-  if(accClockS == true && (currMill - accTime >= 3500)) {
+  if(accClockS == true && (currMill - accTime >= 3000)) {
     digitalWrite(27, HIGH);
   }
   delay(10);
