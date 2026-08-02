@@ -30,8 +30,8 @@ void loop() {
     if(accClockS == false) {
       accTime = currMill;
       accClockS = true;
-      lS.write(90);
-      rS.write(90);
+      lS.write(180);
+      rS.write(180);
       Serial.println("BARREL IS DROPPED");
     } 
   } else {
