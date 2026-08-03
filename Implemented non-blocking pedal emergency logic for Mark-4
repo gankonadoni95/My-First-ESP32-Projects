@@ -9,7 +9,7 @@ byte pushButton = 5;
 byte red_led = 27;
 unsigned long previousMillis = 0;
 unsigned long accidentTimer = 0;
-const long Interval= 1500;
+const long Interval= 2000;
 bool accidentClockStarted = false;
 
 void setup() {
@@ -45,7 +45,7 @@ void loop() {
     rightServo.write(0);
   }
 }
-  if(accidentClockStarted == true && (currentMillis - accidentTimer >= 3000)) {
+  if(accidentClockStarted == true && (currentMillis - accidentTimer >= 3500)) {
       digitalWrite(27, HIGH);
       Serial.println(ALERT! ALERT! ATHLETE IS CRUSHED! ALERT! ALERT!);
  }
