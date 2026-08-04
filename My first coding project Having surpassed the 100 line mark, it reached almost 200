@@ -1,0 +1,188 @@
+#include <ESP32Servo.h>
+#include <Adafruit SSD1306.h>
+#include <Adafruit GFX Library.h>
+
+#define SW 128
+#define SH 64
+
+Servo LS;
+Servo RS;
+
+byte pled = 25; //from 10 to 17 - components
+byte piled = 26;
+byte lbled = 27;
+byte firstB = 5;
+byte secondB = 4;
+int photoR = 35;
+Adafruit_SSD1306 display(SW, SH, &Wire, -1);
+bool isTextShown = false; 
+
+byte systemStatus = 0; //from 18 to 22 - system
+unsigned long prevMill = 0;
+unsigned long accTime = 0;
+const long Interval = 1500;
+bool accClockStarted = false;
+
+unsigned long showTimer = 0; //LED show
+byte showStep = 0;        
+byte bCount = 0; 
+
+void safetyActivation() {
+  LS.write(90);
+  RS.write(90);
+}
+
+void safetyDisact() {
+  for(int a = 90; a >= 0; i--) {
+    LS.write(a);
+    RS.write(a);
+    delay(15);
+  }
+}
+
+void startLEDS(unsigned long currTime) {
+  if(showStep == 0) {
+    digitalWrite(25, HIGH);
+    showStep = 1;
+    showTimer = currTime;
+  }
+  if(showStep == 1 && (currTime - showTimer >= 500)) {
+    digitalWrite(26, HIGH);
+    showStep = 2;
+    showTimer = currTime;
+  }
+  if(showStep == 2 && (currTime - showTimer >= 500)) {
+    digitalWrite(27, HIGH);
+    showStep = 3;
+    showTimer = currTime;
+  }
+  if(showStep == 3 && (currTime - showTimer >= 300)) {
+    showTimer = currTime;
+    bool state digitalRead(25);
+    digitalWrite(25, !state);
+    digitalWrite(26, !state);
+    digitalWrite(27, !state);
+    dCount++;
+
+    if(bCount >= 3) {
+      showStep = 4;
+      digitalWrite(25, LOW);
+      digitalWrite(26, LOW);
+      digitalWrite(27, LOW);
+    }
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+  LS.attach(18);
+  RS.attach(19);
+  pinMode(13, OUTPUT);
+  pinMode(14, OUTPUT);
+  pinMode(27, OUTPUT);
+  pinMode(34, INPUT);
+  pinMode(4, INPUT_PULLUP);
+  pinMode(5, INPUT_PULLUP);
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { 
+    Serial.println("OLED was NOT found!");
+    while(1);
+  }
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(SSD1306_WHITE);
+  LS.write(0);
+  RS.write(0);
+}
+
+void loop() {
+  if(digitalRead(5) == LOW) {
+
+    if(isTextShown == false) {
+      display.clearDisplay();
+      display.setCursor(0, 0);
+      display.setTextSize(2);
+      display.print("System initialization...");
+      delay(1500);
+      display.print("System check...");
+      delay(2000);
+      startLEDS(unsigned long currTime);
+      delay(500);
+      safetyActivation();
+      delay(1000);
+      safetyDisact();
+      delay(3000);
+      display.print("System is Successfully Checked!")
+      delay(2000);
+      display.print("!!! System is now ready to Serve and Save !!!")
+      display.display();
+      isTextShown = true;
+  }
+  } else {
+    if (isTextShown == true) {
+      display.clearDisplay(); //Clear the Display
+      display.display();
+      isTextShown = false; 
+    }
+  }
+
+  unsigned long currMill = millis();
+  int sensorV = analogRead(35);
+
+  if(sensorV < 1000) {
+
+    if(accClockStarted == false) {
+      accTime = currMill;
+      safetyActivation();
+      display.setCursor(0, 0);
+      display.setTextSize(2);
+      display.print("! BARREL IS DROPPED !");
+      display.display();
+      delay(2500);
+      display.clearDisplay();
+      display.display();
+      accClockStarted = true;
+    }
+  } else {
+    if(accClockStarted == true) {
+      safetyDisact();
+      display.setCursor(0, 0);
+      display.setTextSize(2);
+      display.print("! SYSTEM RESET - HIGH ALERTNESS !");
+      display.display();
+      delay(2500);
+      display.clearDisplay();
+      display.display();
+    }
+    accClockStarted = false;
+  }
+
+  if(accClockStarted == true && (currMill - accTime >= 3500)) {
+    digitalWrite(25, HIGH);
+    digitalWrite(26, HIGH);
+    digitalWrite(27, HIGH);
+    display.setCursor(0, 0);
+    display.setTextSize(2);
+    display.print("!!! ALERT|ALERT - ATHLETE IS CRUSHED - ALERT|ALERT !!!");
+    display.display();
+  } else {
+    if(digitalRead(4) == LOW) {
+      display.clearDisplay();
+      display.display();
+      digitalWrite(25, LOW);
+      digitalWrite(26, LOW);
+      digitalWrite(27, LOW);
+      display.setCursor(0, 0);
+      display.setTextSize(2);
+      display.print("System check...");
+      delay(2000);
+      startLEDS(unsigned long currTime);
+      delay(250);
+      display.print("! System checked - System on SAFETY MODE !");
+      safetyDisact();
+      delay(3000);
+      display.clearDisplay();
+      display.display();
+    }
+  }
+  delay(10);
+}
