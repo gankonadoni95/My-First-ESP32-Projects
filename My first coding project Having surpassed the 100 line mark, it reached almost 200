@@ -21,7 +21,7 @@ bool isTextShown = false;
 byte systemStatus = 0; 
 unsigned long prevMill = 0; 
 unsigned long accTime = 0; 
-const long Interval = 1500; 
+const long Interval = 1000; 
 bool accClockStarted = false; 
 
 unsigned long showTimer = 0; 
