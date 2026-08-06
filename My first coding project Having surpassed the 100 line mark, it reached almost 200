@@ -199,7 +199,7 @@ void loop() {
     display.clearDisplay(); 
     display.setCursor(0, 0);
     display.print(" Manually resetting... ");
-    delay(500);
+    delay(1000);
     display.print("!!! System is RESETED !!!");
     display.display(); 
     
