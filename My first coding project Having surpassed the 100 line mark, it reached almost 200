@@ -39,7 +39,7 @@ void safetyDisact() {
   for(int a = 90; a >= 0; a--) { 
     LS.write(a); 
     RS.write(a); 
-    delay(15); 
+    delay(20); 
   } 
 } 
 
