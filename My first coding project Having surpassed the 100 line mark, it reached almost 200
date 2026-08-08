@@ -60,7 +60,7 @@ void startLEDS(unsigned long currTime) {
     showStep = 3; 
     showTimer = currTime; 
   } 
-  if(showStep == 3 && (currTime - showTimer >= 300)) { 
+  if(showStep == 3 && (currTime - showTimer >= 500)) { 
     showTimer = currTime; 
     bool state = digitalRead(pled); 
     digitalWrite(pled, !state); 
