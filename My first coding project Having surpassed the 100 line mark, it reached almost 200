@@ -21,193 +21,161 @@ bool isTextShown = false;
 byte systemStatus = 0; 
 unsigned long prevMill = 0; 
 unsigned long accTime = 0; 
-const long Interval = 1000; 
+const long Interval = 1500; 
 bool accClockStarted = false; 
+bool isAlertActive = false; 
+
+// Добавляем новые флаги контроля состояний
+bool isAthleteCrushed = false; 
+bool isResetShowActive = false;
 
 unsigned long showTimer = 0; 
 byte showStep = 0; 
 byte bCount = 0; 
 
-// Функция мгновенного выстрела балок
 void safetyActivation() { 
   LS.write(90); 
   RS.write(90); 
 } 
 
-// Функция МЕДЛЕННОГО возврата (исправлена переменная цикла с i на a)
 void safetyDisact() { 
   for(int a = 90; a >= 0; a--) { 
     LS.write(a); 
     RS.write(a); 
-    delay(20); 
+    delay(15); 
   } 
 } 
 
-// Асинхронное мигание светодиодов (исправлен синтаксис и dCount)
 void startLEDS(unsigned long currTime) { 
-  if(showStep == 0) { 
-    digitalWrite(pled, HIGH); 
-    showStep = 1; 
-    showTimer = currTime; 
-  } 
-  if(showStep == 1 && (currTime - showTimer >= 500)) { 
-    digitalWrite(piled, HIGH); 
-    showStep = 2; 
-    showTimer = currTime; 
-  } 
-  if(showStep == 2 && (currTime - showTimer >= 500)) { 
-    digitalWrite(lbled, HIGH); 
-    showStep = 3; 
-    showTimer = currTime; 
-  } 
-  if(showStep == 3 && (currTime - showTimer >= 500)) { 
+  if(showStep == 0) { digitalWrite(pled, HIGH); showStep = 1; showTimer = currTime; } 
+  if(showStep == 1 && (currTime - showTimer >= 500)) { digitalWrite(piled, HIGH); showStep = 2; showTimer = currTime; } 
+  if(showStep == 2 && (currTime - showTimer >= 500)) { digitalWrite(lbled, HIGH); showStep = 3; showTimer = currTime; } 
+  if(showStep == 3 && (currTime - showTimer >= 300)) { 
     showTimer = currTime; 
     bool state = digitalRead(pled); 
-    digitalWrite(pled, !state); 
-    digitalWrite(piled, !state); 
-    digitalWrite(lbled, !state); 
+    digitalWrite(pled, !state); digitalWrite(piled, !state); digitalWrite(lbled, !state); 
     bCount++; 
-    
-    if(bCount >= 6) { // 6 переключений = 3 мигания
+    if(bCount >= 6) { showStep = 4; digitalWrite(pled, LOW); digitalWrite(piled, LOW); digitalWrite(lbled, LOW); } 
+  } 
+} 
+
+void resetLEDS(unsigned long currTime) { 
+  if(showStep == 0) { digitalWrite(lbled, HIGH); showStep = 1; showTimer = currTime; } 
+  if(showStep == 1 && (currTime - showTimer >= 500)) { digitalWrite(piled, HIGH); showStep = 2; showTimer = currTime; } 
+  if(showStep == 2 && (currTime - showTimer >= 500)) { digitalWrite(pled, HIGH); showStep = 3; showTimer = currTime; } 
+  if(showStep == 3 && (currTime - showTimer >= 300)) { 
+    showTimer = currTime; 
+    bool state = digitalRead(pled); 
+    digitalWrite(pled, !state); digitalWrite(piled, !state); digitalWrite(lbled, !state); 
+    bCount++; 
+    if(bCount >= 6) { 
       showStep = 4; 
-      digitalWrite(pled, LOW); 
-      digitalWrite(piled, LOW); 
-      digitalWrite(lbled, LOW); 
+      digitalWrite(pled, LOW); digitalWrite(piled, LOW); digitalWrite(lbled, LOW); 
+      isResetShowActive = false; // Выключаем асинхронное шоу по окончании
     } 
   } 
 } 
 
 void setup() { 
   Serial.begin(115200); 
-  LS.attach(18); 
-  RS.attach(19); 
-  
-  // Пины настроены строго под твои переменные светодиодов и датчиков
-  pinMode(pled, OUTPUT); 
-  pinMode(piled, OUTPUT); 
-  pinMode(lbled, OUTPUT); 
-  pinMode(photoR, INPUT); 
-  pinMode(firstB, INPUT_PULLUP); 
-  pinMode(secondB, INPUT_PULLUP); 
+  LS.attach(18); RS.attach(19); 
+  pinMode(pled, OUTPUT); pinMode(piled, OUTPUT); pinMode(lbled, OUTPUT); 
+  pinMode(photoR, INPUT); pinMode(firstB, INPUT_PULLUP); pinMode(secondB, INPUT_PULLUP); 
 
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { 
     Serial.println(" OLED was NOT found! "); 
     while(1); 
   } 
-  
-  display.clearDisplay(); 
-  display.setTextSize(1); // Размер 1, чтобы длинный текст не улетал за границы экрана
-  display.setTextColor(SSD1306_WHITE); 
-  
-  LS.write(0); 
-  RS.write(0); 
+  display.clearDisplay(); display.setTextSize(1); display.setTextColor(SSD1306_WHITE); 
+  LS.write(0); RS.write(0); 
 } 
 
 void loop() { 
   unsigned long currMill = millis(); 
   int sensorV = analogRead(photoR); 
 
-  // БЛОК СИНЕЙ КНОПКИ (Кнопка 5 - Проверка при старте)
+  // БЛОК СИНЕЙ КНОПКИ (Проверка при старте)
   if(digitalRead(firstB) == LOW) { 
     if(isTextShown == false) { 
-      showStep = 0; // Сбрасываем шаги мигания в начало
-      bCount = 0;
-      
-      display.clearDisplay(); 
-      display.setCursor(0, 0); 
-      display.println(" System initialization... "); 
-      display.display();
-      delay(1500); 
-      
-      display.println(" System check... "); 
-      display.display();
-      delay(1000); 
-      
-      // Крутим мигание светодиодов 3 секунды, пока идет проверка
-      unsigned long testTimer = millis();
-      while(millis() - testTimer < 3000) {
-        startLEDS(millis());
-        delay(10);
-      }
-      
-      safetyActivation(); 
-      delay(1000); 
-      safetyDisact(); 
-      delay(1500); 
-      
-      display.clearDisplay();
-      display.setCursor(0, 0);
+      showStep = 0; bCount = 0; 
+      display.clearDisplay(); display.setCursor(0, 0); 
+      display.println(" System initialization... "); display.display(); delay(1500); 
+      display.println(" System check... "); display.display(); delay(1000); 
+      unsigned long testTimer = millis(); 
+      while(millis() - testTimer < 3000) { startLEDS(millis()); delay(10); } 
+      safetyActivation(); delay(1000); safetyDisact(); delay(1500); 
+      display.clearDisplay(); display.setCursor(0, 0); 
       display.println(" System successfully Checked! "); 
-      display.println(" System is Ready to Serve and Save !!! ");
-      display.display();
-      delay(2500);
+      display.println(" System is Ready to Serve and Save !!! "); 
+      display.display(); delay(2500); 
       isTextShown = true; 
     } 
   } else { 
-    if (isTextShown == true) { 
-      display.clearDisplay(); 
-      display.display(); 
-      isTextShown = false; 
-    } 
+    if (isTextShown == true) { display.clearDisplay(); display.display(); isTextShown = false; } 
   } 
 
   // БЛОК ФОТОРЕЗИСТОРА (Падение штанги)
   if(sensorV < 1000) { 
-    if(accClockStarted == false) { 
+    if(accClockStarted == false && isAthleteCrushed == false) { 
       accTime = currMill; 
       safetyActivation(); 
-      
-      display.clearDisplay();
-      display.setCursor(0, 0); 
-      display.print("! BARREL IS DROPPED !"); 
-      display.display(); 
+      display.clearDisplay(); display.setCursor(0, 0); 
+      display.print("! BARREL IS DROPPED !"); display.display(); 
       accClockStarted = true; 
     } 
   } else { 
-    if(accClockStarted == true) { 
+    // Если менее 3.5 секунд — возвращаем балки автоматически
+    if(accClockStarted == true && isAlertActive == false) { 
       safetyDisact(); 
-      display.clearDisplay();
-      display.setCursor(0, 0); 
-      display.print("! SYSTEM RESET - HIGH ALERTNESS !"); 
-      display.display(); 
-      delay(2000); 
-      display.clearDisplay(); 
-      display.display(); 
+      display.clearDisplay(); display.setCursor(0, 0); 
+      display.print("! SYSTEM RESET - HIGH ALERTNESS !"); display.display(); 
+      delay(2000); display.clearDisplay(); display.display(); 
+      accClockStarted = false; 
     } 
-    accClockStarted = false; 
+    // Если ЧП уже зафиксировано и ползунок вернули влево (светло)
+    else if(isAthleteCrushed == true) {
+      display.clearDisplay(); display.setCursor(0, 0); 
+      display.print("! HIGH ALERTNESS !"); display.display(); 
+    }
   } 
 
-  // БЛОК ТРЕВОГИ (Штанга лежит больше 3.5 секунд)
-  if(accClockStarted == true && (currMill - accTime >= 3500)) { 
-    digitalWrite(pled, HIGH); 
-    digitalWrite(piled, HIGH); 
-    digitalWrite(lbled, HIGH); 
+  // БЛОК ТРЕВОГИ (3.5 секунды ЧП удержания)
+  if(accClockStarted == true && (currMill - accTime >= 3500) && isAthleteCrushed == false) { 
+    isAlertActive = true; 
+    isAthleteCrushed = true; // Запираем режим ЧП намертво
+    accClockStarted = false; // Отключаем таймер датчика
     
-    display.clearDisplay();
-    display.setCursor(0, 0); 
-    display.print("!!! ALERT-ALERT !!! ATHLETE IS CRUSHED !!! ALERT-ALERT !!!"); 
-    display.display(); 
+    digitalWrite(pled, HIGH); digitalWrite(piled, HIGH); digitalWrite(lbled, HIGH); 
+    display.clearDisplay(); display.setCursor(0, 0); 
+    display.print("!!! ALERT-ALERT !!!\nATHLETE IS CRUSHED !!!\nALERT-ALERT !!!"); display.display(); 
   } 
 
-  // БЛОК КРАСНОЙ КНОПКИ (Кнопка 4 - Ручной сброс аварии)
+  // БЛОК КРАСНОЙ КНОПКИ (Ручной сброс запертой аварии)
   if(digitalRead(secondB) == LOW) { 
-    accClockStarted = false;
-    digitalWrite(pled, LOW); 
-    digitalWrite(piled, LOW); 
-    digitalWrite(lbled, LOW); 
+    accClockStarted = false; 
+    isAlertActive = false; 
+    isAthleteCrushed = false;
     
-    display.clearDisplay(); 
-    display.setCursor(0, 0);
-    display.print(" Manually resetting... ");
-    delay(1500);
-    display.print("!!! System is RESETED !!!");
-    display.display(); 
+    digitalWrite(pled, LOW); digitalWrite(piled, LOW); digitalWrite(lbled, LOW); 
     
-    safetyDisact(); 
-    delay(1500); 
-    display.clearDisplay(); 
-    display.display(); 
+    display.clearDisplay(); display.setCursor(0, 0); 
+    display.print(" Manually resetting... "); display.display(); delay(500); 
+    display.print("\n!!! System is RESETED !!!"); display.display(); 
+    
+    safetyDisact(); // Медленный возврат серв
+    delay(1000); 
+    display.clearDisplay(); display.display(); 
+    
+    // Взводим асинхронный запуск обратного шоу
+    showStep = 0; 
+    bCount = 0; 
+    isResetShowActive = true; 
   } 
+
+  // Вызов обратного шоу в loop, чтобы оно работало асинхронно
+  if(isResetShowActive == true) {
+    resetLEDS(currMill);
+  }
 
   delay(10); 
 }
