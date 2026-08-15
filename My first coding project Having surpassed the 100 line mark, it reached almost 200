@@ -177,5 +177,5 @@ void loop() {
     resetLEDS(currMill);
   }
 
-  delay(10); 
+  delay(15); 
 }
