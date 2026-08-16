@@ -62,7 +62,7 @@ void loop() {
     display.clearDisplay();
     display.setCursor(0, 0);
     display.print("I am done bro, sir --- You DO what YOU want...ninja");
-    delay(1500);
+    delay(1000);
     display.clearDisplay();
     display.display();
   }
