@@ -19,7 +19,7 @@ Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS)
 void setup() {
   Serial.begin(115200);
   pinMode(17, OUTPUT);
-  ledcAttach(17, 5000, 8);
+  ledcAttach(17, 5555, 8);
 }
 
 enum class SystemMode {
