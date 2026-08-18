@@ -1,0 +1,95 @@
+#include <Adafruit_SSD1306.h>
+#include <Keypad.h>
+#include <Wire.h>
+
+#define SW 128
+#define SH 64
+
+Adafruit_SSD1306 display (SW, SH, &Wire, -1);
+
+String displayState = " ";
+bool isMainScreenDrawn = false;
+
+const byte ROWS = 4;
+const byte COLS = 4;
+
+char hexaKeys [ROWS] [COLS] = {
+  {'1','2','3','A'},
+  {'4','5','6','B'},
+  {'7','8','9','C'},
+  {'*','0','#','D'}
+};
+
+byte rowPins [ROWS] = {25,26,32,33};
+byte colPins [COLS] = {12,13,14,27};
+
+Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
+
+void setup() {
+  Serial.begin(115200);
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3c)) {
+    Serial.println("Oled Error, Mr. Tony Stark");
+    while(1);
+  }
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setTextColor(SSD1306_WHITE);
+    display.setCursor(0, 0);
+    display.print("System Initialization... ");
+    display.display();
+    delay(1000);
+}
+
+enum class SystemState {
+  MAIN_SCREEN,
+  COLLECT_DATA,
+  SHOW_LOG
+};
+
+SystemState currState = SystemState::MAIN_SCREEN;
+
+void loop() {
+  char customKey = customKeypad.getKey();
+  int lastWeight = 95;
+  switch(currState) {
+
+    case SystemState::MAIN_SCREEN:
+    if(isMainScreenDrawn == false) {
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    display.println("System is Active");
+    display.println("Press <A> for Log.");
+    display.display();
+    isMainScreenDrawn = true;
+    }
+    if(customKey == 'A') {
+      currState = SystemState::COLLECT_DATA;
+    }
+    break;
+
+    case SystemState::COLLECT_DATA:
+    display.clearDisplay();
+    display.setCursor(0, 0);
+
+    displayState = "Last Weight: ";
+    displayState += lastWeight;
+    displayState += " kg";
+    display.print(displayState);
+    display.display();
+
+    currState = SystemState::SHOW_LOG;
+    
+    break;
+
+    case SystemState::SHOW_LOG:
+    if(customKey == 'B') {
+      display.clearDisplay();
+      display.display();
+      isMainScreenDrawn = false;
+      currState = SystemState::MAIN_SCREEN;
+    }
+    break;
+  }
+  
+  delay(15);
+}
