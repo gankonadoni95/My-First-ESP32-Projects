@@ -91,5 +91,5 @@ void loop() {
     break;
   }
   
-  delay(17);
+  delay(20);
 }
